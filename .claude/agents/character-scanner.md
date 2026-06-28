@@ -1,0 +1,1 @@
+../skills/text-eval/agents/character-scanner/AGENT.md
