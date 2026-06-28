@@ -45,14 +45,6 @@ straight into `~/.claude/`):
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/odysseyalive/claude-remote-watchdog/main/install.sh)"
 ```
 
-Or from a clone:
-
-```bash
-git clone https://github.com/odysseyalive/claude-remote-watchdog.git
-cd claude-remote-watchdog
-./install.sh
-```
-
 The installer downloads each file in `manifest.txt` into `~/.claude/`:
 - `~/.claude/commands/remote-watchdog.md` — slash command
 - `~/.claude/scripts/remote-watchdog.sh` — watchdog script
