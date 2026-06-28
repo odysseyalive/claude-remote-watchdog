@@ -10,13 +10,26 @@ See: [anthropics/claude-code#34255](https://github.com/anthropics/claude-code/is
 
 ## How It Works
 
-1. Scans all tmux panes for Claude Code's status bar
-2. Detects `Remote Control reconnecting` (stuck/dead state)
+1. Scans all tmux panes for Claude Code's status bar (the bottom of each pane)
+2. Detects `Remote Control reconnecting`/`connecting` (stuck/dead states)
 3. Uses a 2-check grace period to avoid false positives on transient drops
 4. Sends tmux keystrokes to automatically cycle disconnect → reconnect:
    - `Ctrl+C` → clear prompt
    - `/remote-control` → navigate to "Disconnect this session" → Enter
    - `/remote-control` → auto-connects to fresh bridge session
+5. **Self-verifies** the reconnect in the same run — re-reads the pane and
+   confirms it left the stuck state. No manual re-run needed.
+
+### Token-frugal by design
+
+The watchdog is built to run on a tight loop without burning context tokens:
+
+- **Silent on success.** A healthy run prints *nothing* and exits `0`. Only
+  `WARN`/`DEAD`/`ACTION`/`OK`/`FAIL` events produce output. Use `--verbose` to
+  see per-pane health.
+- Because each healthy check is essentially free, you can loop *more often*
+  (e.g. `/loop 2m`) for faster recovery at lower total token cost than the old
+  verbose `/loop 5m`.
 
 ## Requirements
 
@@ -43,41 +56,63 @@ This creates symlinks in `~/.claude/`:
 # One-time health check
 /remote-watchdog
 
-# Auto-monitor every 5 minutes
-/loop 5m /remote-watchdog
+# Auto-monitor every 2 minutes (cheap now that healthy runs are silent)
+/loop 2m /remote-watchdog
 ```
 
 ### Standalone (no Claude session needed)
 
 ```bash
-# Manual run
+# Manual run (silent unless something needs attention)
 ~/.claude/scripts/remote-watchdog.sh
+
+# Verbose: show every pane's health + a summary line
+~/.claude/scripts/remote-watchdog.sh --verbose
 
 # Dry run (detect only, no reconnect)
 ~/.claude/scripts/remote-watchdog.sh --dry-run
 
-# Crontab (fully autonomous)
-*/5 * * * * ~/.claude/scripts/remote-watchdog.sh >> /tmp/remote-watchdog.log 2>&1
+# Crontab (fully autonomous, every 2 min, log only real events)
+*/2 * * * * ~/.claude/scripts/remote-watchdog.sh >> /tmp/remote-watchdog.log 2>&1
 ```
 
 ## Output
 
+A healthy run is **silent** (exit `0`). Output appears only when something
+happens:
+
 ```
-=== Remote Control Watchdog 10:48:42 ===
-[HEALTHY] Deck (%4)
 [WARN] agent-universe (%5): 'reconnecting' — confirming next check
 [DEAD] workspace-i (%6): stuck on 'reconnecting' — auto-reconnecting
 [ACTION] Cycling /remote-control on pane %6 (workspace-i)...
-[OK] Reconnect sequence sent to pane %6 (workspace-i)
+[OK] workspace-i (%6): reconnect sent and verified
 ```
 
 | Status | Meaning |
 |--------|---------|
-| `[HEALTHY]` | Remote Control active |
-| `[PENDING]` | Currently connecting |
+| `[HEALTHY]` | Remote Control active (only shown with `--verbose`) |
 | `[WARN]` | First detection of reconnecting — grace period |
 | `[DEAD]` | Confirmed dead — auto-reconnect triggered |
-| `[SKIP]` | No Remote Control sessions found in tmux |
+| `[ACTION]` | Cycling `/remote-control` keystrokes |
+| `[OK]` | Reconnect sent **and self-verified** |
+| `[FAIL]` | Still stuck after reconnect — will retry next check |
+| `[SKIP]` | No Remote Control sessions found (only shown with `--verbose`) |
+
+### Exit codes
+
+| Code | Meaning |
+|------|---------|
+| `0` | Nothing wrong (or only a grace-period warning) |
+| `1` | A reconnect was attempted and verified |
+| `2` | A reconnect was attempted but verification failed |
+
+### Tunables (environment variables)
+
+| Var | Default | Purpose |
+|-----|---------|---------|
+| `STEP_WAIT` | `5` | Seconds between TUI keystrokes (raise on slow machines) |
+| `CAPTURE_LINES` | `12` | Bottom lines of each pane to inspect for the status bar |
+| `VERIFY_WAIT` | `6` | Seconds to wait before self-verifying a reconnect |
 
 ## How the Reconnect Works
 
@@ -95,7 +130,7 @@ The script navigates `Up Up Enter` to select "Disconnect", then runs `/remote-co
 
 - **tmux required**: Detection relies on reading tmux pane content via `tmux capture-pane`
 - **TUI timing**: The script uses 5-second waits between keystrokes; slow machines may need `STEP_WAIT` increased
-- **Grace period**: Takes 2 consecutive checks (~10 min with default `/loop 5m`) before triggering reconnect to avoid false positives
+- **Grace period**: Takes 2 consecutive checks before triggering reconnect to avoid false positives — ~4 min at `/loop 2m`, ~10 min at `/loop 5m`
 
 ## License
 

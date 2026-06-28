@@ -1,4 +1,4 @@
-Run the remote control watchdog script to check connection health and auto-reconnect dead sessions.
+Run the remote control watchdog and report only if something needed attention.
 
 Execute the `remote-watchdog.sh` script located in the same directory as this command file (resolve via symlink if needed):
 
@@ -12,8 +12,12 @@ done
 
 Run: `${WATCHDOG:-~/.claude/scripts/remote-watchdog.sh}`
 
-If the script reports `[DEAD]` and attempts auto-reconnect, wait 10 seconds then re-run the script to verify the reconnect succeeded. Report the final status.
+The script is silent when everything is healthy and self-verifies its own
+reconnects, so:
+
+- **No output** → reply with a single line: `✓ remote-control healthy` and stop. Do not elaborate, do not re-run.
+- **Output present** (`[WARN]`/`[DEAD]`/`[ACTION]`/`[OK]`/`[FAIL]`) → relay those lines verbatim. The script already verified any reconnect in the same run — do NOT re-run to confirm.
+
+This command runs on a loop; keep your reply to the minimum shown above.
 
 If the script is not executable or missing, run `chmod +x` on it first.
-
-Keep output concise — this runs on a loop.
