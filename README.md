@@ -38,15 +38,27 @@ The watchdog is built to run on a tight loop without burning context tokens:
 
 ## Install
 
+One-liner — no clone needed (downloads the files listed in `manifest.txt`
+straight into `~/.claude/`):
+
 ```bash
-git clone https://github.com/sma1lboy/claude-remote-watchdog.git
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/odysseyalive/claude-remote-watchdog/main/install.sh)"
+```
+
+Or from a clone:
+
+```bash
+git clone https://github.com/odysseyalive/claude-remote-watchdog.git
 cd claude-remote-watchdog
 ./install.sh
 ```
 
-This creates symlinks in `~/.claude/`:
+The installer downloads each file in `manifest.txt` into `~/.claude/`:
 - `~/.claude/commands/remote-watchdog.md` — slash command
 - `~/.claude/scripts/remote-watchdog.sh` — watchdog script
+
+**Update** any time by re-running the same one-liner — it overwrites the
+command and script in place.
 
 ## Usage
 

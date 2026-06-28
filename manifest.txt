@@ -1,0 +1,13 @@
+# claude-remote-watchdog install manifest
+#
+# The single authoritative list of every file the installer ships.
+# Consumed by install.sh, which downloads each file from the repo and
+# writes it under ~/.claude/. Add every new shipped file here.
+#
+# Format: [flag] <source path relative to repo root> <dest path relative to ~/.claude>
+#   (no flag)  fetch unconditionally, overwriting any existing copy
+#   exec       fetch unconditionally; mark executable (chmod +x)
+#   keep       fetch only if absent on the host (user-editable; never clobber)
+
+exec remote-watchdog.sh scripts/remote-watchdog.sh
+     remote-watchdog.md  commands/remote-watchdog.md

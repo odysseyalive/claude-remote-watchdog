@@ -26,8 +26,13 @@ See: https://github.com/anthropics/claude-code/issues/34255
   Control sessions, and cycles `/remote-control` to reconnect. Supports `--dry-run`.
 - `remote-watchdog.md` — the `/remote-watchdog` slash command that runs the script
   from within Claude Code.
-- `install.sh` — symlinks the script and command into `~/.claude/scripts/` and
-  `~/.claude/commands/`.
+- `install.sh` — manifest-driven installer. Downloads each file listed in
+  `manifest.txt` from the repo (via `curl`) into `~/.claude/scripts/` and
+  `~/.claude/commands/`. Re-run to update in place; works as a remote
+  `curl … | bash` one-liner or from a local clone.
+- `manifest.txt` — authoritative list of shipped files. Each line is
+  `[flag] <repo-source-path> <dest-relative-to-~/.claude>`; flags: `exec`
+  (chmod +x), `keep` (fetch only if absent — never clobber user edits).
 - `README.md` — user-facing docs.
 
 ## How it works
@@ -48,7 +53,7 @@ See: https://github.com/anthropics/claude-code/issues/34255
 There is no build step. To run and validate:
 
 ```bash
-# Install (symlinks into ~/.claude/)
+# Install / update (downloads manifest.txt files into ~/.claude/)
 ./install.sh
 
 # Run directly
