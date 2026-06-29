@@ -39,10 +39,18 @@ The watchdog is built to run on a tight loop without burning context tokens:
 ## Install
 
 One-liner — no clone needed (downloads the files listed in `manifest.txt`
-straight into `~/.claude/`):
+straight into `~/.claude/`).
+
+**Linux / macOS / WSL:**
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/odysseyalive/claude-remote-watchdog/main/install.sh)"
+```
+
+**Windows (PowerShell):**
+
+```powershell
+irm https://raw.githubusercontent.com/odysseyalive/claude-remote-watchdog/main/install.ps1 | iex
 ```
 
 The installer downloads each file in `manifest.txt` into `~/.claude/`:
@@ -51,6 +59,11 @@ The installer downloads each file in `manifest.txt` into `~/.claude/`:
 
 **Update** any time by re-running the same one-liner — it overwrites the
 command and script in place.
+
+> **Windows note:** the watchdog needs `tmux` + bash, which on Windows only
+> exist under **WSL**. `install.ps1` lands the files in your Windows-side
+> `~/.claude` for parity, but to actually run the watchdog use the bash
+> one-liner *inside WSL*.
 
 ## Usage
 

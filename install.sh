@@ -1,9 +1,10 @@
 #!/bin/bash
-# Install / update claude-remote-watchdog.
+# Install / update claude-remote-watchdog (Linux / macOS / WSL).
 #
 # Downloads the files listed in manifest.txt straight from the repo and
 # writes them under ~/.claude/. Re-run any time to update to the latest
 # version — it overwrites the command and script in place.
+# Windows (native PowerShell) users: use install.ps1 instead.
 #
 # Remote one-liner (no clone needed):
 #   bash -c "$(curl -fsSL https://raw.githubusercontent.com/odysseyalive/claude-remote-watchdog/main/install.sh)"

@@ -1,8 +1,10 @@
 # claude-remote-watchdog install manifest
 #
-# The single authoritative list of every file the installer ships.
-# Consumed by install.sh, which downloads each file from the repo and
-# writes it under ~/.claude/. Add every new shipped file here.
+# The single authoritative list of every file the installers ship.
+# Consumed by BOTH installers: install.sh (bash, Linux/macOS/WSL) and
+# install.ps1 (PowerShell, Windows). Each downloads every file listed here
+# from the repo and writes it under ~/.claude/. Add every new shipped file
+# here — there are no per-installer file lists to keep in sync.
 #
 # Format: [flag] <source path relative to repo root> <dest path relative to ~/.claude>
 #   (no flag)  fetch unconditionally, overwriting any existing copy

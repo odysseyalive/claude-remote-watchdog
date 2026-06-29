@@ -16,6 +16,8 @@ See: https://github.com/anthropics/claude-code/issues/34255
 ## Stack
 
 - **Language:** Bash (shell scripts only — no compiled code, no package manager).
+  The one exception is `install.ps1`, a PowerShell port of the installer for
+  native Windows hosts.
 - **Runtime deps:** `tmux` and the Claude Code CLI. Nothing else.
 - **Targets:** Linux, macOS, and WSL. Keep scripts portable across GNU and BSD
   coreutils (mind `date`, `awk`, `grep`, `sed` differences between Linux and macOS).
@@ -26,13 +28,18 @@ See: https://github.com/anthropics/claude-code/issues/34255
   Control sessions, and cycles `/remote-control` to reconnect. Supports `--dry-run`.
 - `remote-watchdog.md` — the `/remote-watchdog` slash command that runs the script
   from within Claude Code.
-- `install.sh` — manifest-driven installer. Downloads each file listed in
-  `manifest.txt` from the repo (via `curl`) into `~/.claude/scripts/` and
-  `~/.claude/commands/`. Re-run to update in place; works as a remote
-  `curl … | bash` one-liner or from a local clone.
-- `manifest.txt` — authoritative list of shipped files. Each line is
-  `[flag] <repo-source-path> <dest-relative-to-~/.claude>`; flags: `exec`
-  (chmod +x), `keep` (fetch only if absent — never clobber user edits).
+- `install.sh` — manifest-driven installer for Linux/macOS/WSL. Downloads each
+  file listed in `manifest.txt` from the repo (via `curl`) into
+  `~/.claude/scripts/` and `~/.claude/commands/`. Re-run to update in place;
+  works as a remote `curl … | bash` one-liner or from a local clone.
+- `install.ps1` — PowerShell port of `install.sh` for native Windows hosts.
+  Consumes the same `manifest.txt` (via `Invoke-WebRequest`). The watchdog
+  needs tmux + bash, so real use is via `install.sh` inside WSL; the `.ps1`
+  exists for install-UX parity. Keep it in lockstep with `install.sh`.
+- `manifest.txt` — authoritative list of shipped files, shared by BOTH
+  installers. Each line is `[flag] <repo-source-path> <dest-relative-to-~/.claude>`;
+  flags: `exec` (chmod +x on unix; no-op on Windows), `keep` (fetch only if
+  absent — never clobber user edits).
 - `README.md` — user-facing docs.
 
 ## How it works
