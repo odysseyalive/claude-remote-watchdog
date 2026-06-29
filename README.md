@@ -69,27 +69,41 @@ command and script in place.
 
 ### Inside Claude Code (recommended)
 
-```
-# One-time health check
-/remote-watchdog
+One-time health check:
 
-# Auto-monitor every 2 minutes (cheap now that healthy runs are silent)
+```
+/remote-watchdog
+```
+
+Auto-monitor every 2 minutes (cheap now that healthy runs are silent):
+
+```
 /loop 2m /remote-watchdog
 ```
 
 ### Standalone (no Claude session needed)
 
+Manual run (silent unless something needs attention):
+
 ```bash
-# Manual run (silent unless something needs attention)
 ~/.claude/scripts/remote-watchdog.sh
+```
 
-# Verbose: show every pane's health + a summary line
+Verbose — show every pane's health plus a summary line:
+
+```bash
 ~/.claude/scripts/remote-watchdog.sh --verbose
+```
 
-# Dry run (detect only, no reconnect)
+Dry run (detect only, no reconnect):
+
+```bash
 ~/.claude/scripts/remote-watchdog.sh --dry-run
+```
 
-# Crontab (fully autonomous, every 2 min, log only real events)
+Crontab — fully autonomous, every 2 min, log only real events:
+
+```bash
 */2 * * * * ~/.claude/scripts/remote-watchdog.sh >> /tmp/remote-watchdog.log 2>&1
 ```
 
