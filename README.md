@@ -2,6 +2,15 @@
 
 Auto-detect and fix dead [Claude Code](https://docs.anthropic.com/en/docs/claude-code) Remote Control (`/remote-control`) sessions in tmux.
 
+> **Token-cost disclaimer.** When run inside Claude Code on a loop (e.g.
+> `/loop 2m /remote-watchdog`), each healthy tick generates only ~50–150 output
+> tokens (one tool call + a one-line reply). The real per-tick cost is the
+> session context re-read on each model call — mostly billed as cheap **cached
+> input** as long as ticks stay inside the ~5-minute cache TTL (2-minute spacing
+> keeps it warm). These are rough estimates, not metered figures, and scale with
+> your session's system prompt and loaded MCP tools. For an exact number, run
+> `/cost` after a known number of ticks and divide.
+
 ## The Problem
 
 Claude Code's `/remote-control` silently drops connections after 15-60 minutes. The built-in reconnection never recovers — the status bar shows "Remote Control reconnecting" indefinitely. The only fix is to manually cycle `/remote-control` at the terminal, which defeats the purpose of remote control.
